@@ -19,9 +19,8 @@ class AI_player():
                 self.opponent = "B"
     
         self.board = board[3:]
-        for i in self.board:
-            print i
-        next_Move = Node(self.board, self.player, self.opponent, self.depth, self.depth,(None, -sys.maxint), (None, sys.maxint)).Get_move(0)
+
+        next_Move = Node(self.board, self.player, self.opponent, self.depth, self.depth,(None, -sys.maxint), (None, sys.maxint)).Get_move(1)
         self.Make_move(next_Move[0])
         
 

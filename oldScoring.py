@@ -31,12 +31,10 @@ class Node():
     
         #If the look ahead depth is not reached compare the value of each branch node
         if self.depth != 0:
-            if self.score() == -100 or self.score() == 100:
-                return (None, self.score())
+            if self.score() == -100 or self.Score_easy() == 100:
+                return (None, self.Score_easy())
             else:
                 self.Place_pieces()
-            
-
         
             # Return Max
             if self.depth%2 == 0:
@@ -63,40 +61,28 @@ class Node():
     
         #If the look ahead depth is reached return the score of each node
         elif self.depth == 0:
-            return (None, self.score())
+            return (None, self.Score_easy())
 
 
 
     #First return function 100 if win -100 if loss
     def Score_easy(self):
-        print self.player,
-        self.score_Values = (0,0,0,100)
-        
-        veri_Score = self.Vertical_score()
-        hori_Score = self.Horizontal_score()
-        diag_Score = self.Diagonal_score()
-        
-        if veri_Score == 100 or hori_Score == 100 or diag_Score == 100:
-            return 100
-        elif veri_Score == -100 or hori_Score == -100 or diag_Score == -100:
+        self.Vertical_score(1)
+        self.Horizontal_score(1)
+
+        if self.worst_Score[1] <= -4:
             return -100
+        elif self.max_Score[1] >= 4:
+            return 100
         else:
-            return veri_Score+hori_Score+diag_Score
+            return 0
 
     def Score_hard(self):
-        print self.player,
-        self.score_Values = (0,5,20,100)
-        
-        veri_Score = self.Vertical_score()
-        hori_Score = self.Horizontal_score()
-        diag_Score = self.Diagonal_score()
-        
-        if veri_Score == 100 or hori_Score == 100 or diag_Score == 100:
-            return 100
-        elif veri_Score == -100 or hori_Score == -100 or diag_Score == -100:
-            return -100
-        else:
-            return veri_Score+hori_Score+diag_Score
+        score_Values(0,10,45,100)
+    
+        the_Score += Vertical_score(0)
+        the_Score += Horizontal_score(0)
+
 
     #Create every possible board placement
     def Place_pieces(self):
@@ -126,9 +112,6 @@ class Node():
 
     #Get the vertical score of the current board
     def Vertical_score(self, scoring_Method = 0):
-        negative_Score = 0
-        positive_Score = 0
-        
         for row in range(0,7):
             count = 0
             for col in range(0,6):
@@ -143,23 +126,15 @@ class Node():
                     else:
                         count -= 1;
         
-                # convert negative to positive for scoring index
-                if count <= -4:
-                    return -100
-                elif count >= 4:
-                    return 100
-            if count < 0:
-                negative_Score -= self.score_Values[abs(count)-1]
-            elif count > 0:
-                positive_Score += self.score_Values[count-1]
-        return positive_Score + negative_Score
-    
+                if count > self.max_Score[1]:
+                    self.max_Score = (row, count)
+                if count < self.worst_Score[1]:
+                    self.worst_Score = (row, count)
+
+
 
     #Get the horizontal score of the current board
-    def Horizontal_score(self):
-        negative_Score = 0
-        positive_Score = 0
-        
+    def Horizontal_score(self, scoring_Method = 0):
         for col in range(0,6):
             count = 0
             for row in range(0,7):
@@ -175,69 +150,40 @@ class Node():
                         count -= 1;
                 if self.board[col][row] == " ":
                     count = 0
-            
-                if count <= -4:
-                    return -100
-                elif count >= 4:
-                    return 100
-            if count < 0:
-                negative_Score -= self.score_Values[abs(count)-1]
-            elif count > 0:
-                positive_Score += self.score_Values[count-1]
-        return positive_Score + negative_Score
-
-    def Diagonal_score(self):
-        negative_Score = 0
-        positive_Score = 0
-        
-        for row in range(0,3):
-            count = 0;
-            for col in range(0,4):
-                if self.board[col][row+col]==self.player:
-                    if count < 0:
-                        count = 1;
-                    else:
-                        count += 1;
-                elif self.board[col][row+col]==self.opponent:
-                    if count > 0:
-                        count = -1;
-                    else:
-                        count -= 1;
-                else:
-                    count = 0;
                 
-                if count <= -4:
-                    return -100
-                if count >= 4:
-                    return 100
-            if count < 0:
-                negative_Score -= self.score_Values[abs(count)-1]
-            elif count > 0:
-                positive_Score += self.score_Values[count-1]
 
 
-        for row in range(3,6):
-            count = 0;
-            for col in range(0,5):
-                if self.board[col][row-col]==self.player:
-                    if count < 0:
-                        count = 1;
-                    else:
-                        count += 1;
-                elif self.board[col][row-col]==self.opponent:
-                    if count > 0:
-                        count = -1;
-                    else:
-                        count -= 1;
-                else:
-                    count = 0;
-                
-                if count <= -4:
-                    return -100
-                if count >= 4:
-                    return 100
-            if count < 0:
-                negative_Score -= self.score_Values[abs(count)-1]
-            elif count > 0:
-                positive_Score += self.score_Values[count-1]
-        return positive_Score - negative_Score
+
+
+"""
+    #If the ai player can win on the first move return that they can win
+    if self.depth == self.root - 1:
+    for i in self.possible_Moves:
+    first_Move = Node(i[1], self.player, self.opponent, sys.maxint, self.depth - 1, self.root)
+    
+    result = first_Move.Score_easy()
+    
+    
+    if result == 100:
+    return (first_Move.max_Score[1], result)
+    
+    
+    
+    #Generate the possible moves
+    for i in self.possible_Moves:
+    result = Node(i[1], self.player, self.opponent, sys.maxint, self.depth - 1, self.root).Easy_ai()
+    
+    if self.depth%2 == 1 and result > self.value:
+    self.value = result
+    print self.value
+    
+    elif self.depth%2 == 0 and result < self.value:
+    self.value = result
+    print self.value
+    
+    if self.depth%2 == 0 and result > self.value:
+    self.value = result
+    
+    if self.depth%2 == 1 and result < self.value:
+    self.value = result
+    """

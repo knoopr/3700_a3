@@ -69,7 +69,6 @@ class Node():
 
     #First return function 100 if win -100 if loss
     def Score_easy(self):
-        print self.player,
         self.score_Values = (0,0,0,100)
         
         veri_Score = self.Vertical_score()
@@ -84,7 +83,6 @@ class Node():
             return veri_Score+hori_Score+diag_Score
 
     def Score_hard(self):
-        print self.player,
         self.score_Values = (0,5,20,100)
         
         veri_Score = self.Vertical_score()
